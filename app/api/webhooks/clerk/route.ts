@@ -1,7 +1,7 @@
 import { Webhook } from 'svix';
 import { headers } from 'next/headers';
 import { WebhookEvent } from '@clerk/nextjs/server';
-import { createUser, updateUser, getUserById } from '@/lib/users'; // Import necessary functions
+import { createUser, updateUser, deleteUser, getUserById } from '@/lib/users'; // Import necessary functions, including deleteUser
 import { User } from '@prisma/client';
 
 export async function POST(req: Request) {
@@ -72,6 +72,19 @@ export async function POST(req: Request) {
       await updateUser(existingUser.id, userData); // Update existing user
     } else {
       await createUser(userData as User); // Create new user
+    }
+  } else if (eventType === 'user.deleted') {
+    const { id } = eventData;
+
+    if (!id) {
+      return new Response('Error occurred -- missing user id', { status: 400 });
+    }
+
+    const deleteResult = await deleteUser(id);
+
+    if (deleteResult.error) {
+      console.error('Error deleting user:', deleteResult.error);
+      return new Response('Error occurred', { status: 500 });
     }
   }
 

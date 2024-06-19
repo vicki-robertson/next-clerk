@@ -43,3 +43,15 @@ export async function updateUser(id: string, data: Partial<User>) {
         return { error }
     }
 }
+
+export async function deleteUser(userId: string) {
+    try {
+      const deleteResult = await prisma.user.delete({
+        where: { id: userId },
+      });
+  
+      return { deleteResult };
+    } catch (error) {
+      return { error };
+    }
+  }
